@@ -11,27 +11,24 @@ echo -e "Loading [$(basename ${BASH_SOURCE})]...\n"
 # etc.)
 #--------------------------------------
 
-source_file ~/.bashrc
+source_file="$HOME/.bashrc"
+if [ -s ${source_file} ]; then
+    echo -n "   > Sourcing [${source_file}]... "
+    source ${source_file}
+    echo "done."
+fi
 
 #--------------------------------------
 # Sources git-completion, if present,
 # for handy git command auto-completion.
 #--------------------------------------
 
-source_file /usr/local/etc/bash_completion
-
-#--------------------------------------
-# Convenience method for sourcing a
-# given file and printing that it has
-# done so, iff given file is present.
-#--------------------------------------
-source_file () {
-    if [ -s ${1} ]; then
-        echo -n "   > Sourcing [${1}]... "
-        source ${1}
-        echo "done."
-    fi
-}
+source_file="/usr/local/etc/bash_completion"
+if [ -s ${source_file} ]; then
+    echo -n "   > Sourcing [${source_file}]... "
+    source ${source_file}
+    echo "done."
+fi
 
 #--------------------------------------
 # Detect OS, for OS-specific scripts
@@ -93,4 +90,5 @@ fi
 
 #--------------------------------------
 
+unset source_file
 echo -e "\n...[$(basename ${BASH_SOURCE})] loaded."
