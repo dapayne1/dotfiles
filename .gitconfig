@@ -1,0 +1,12 @@
+[core]
+    # autocrlf settings:
+    #     true  | Converts LF endings into CRLF (Windows format) when you check out code. Good for Windows.
+    #     input | Converts errant CRLF (Windows format) to LF on commit. Good for Linux/ Mac.
+    autocrlf = input
+
+    # safecrllf settings:
+    #     false | Proceeds without warning
+    #     warn  | Proceeds with warning
+    #     true  | Doesn't proceed
+    safecrlf = warn
+
