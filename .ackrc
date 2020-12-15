@@ -1,0 +1,11 @@
+--type-set
+    log:ext:log
+
+--type-set
+    bin:ext:bin
+
+--type-set
+    rtf:ext:rtf
+
+--type-set=images=.png,.jpg,.jpeg,.gif
+

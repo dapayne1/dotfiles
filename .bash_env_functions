@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+
+# .bash_env_functions
+#-----------------------------------------------------------
+# Tested and verified via shellcheck v0.7.1
+
+# Silently determine if a command is present in
+# the system; returns 0 if so. Example usage:
+#     if cmd::exists ls; then alias ll="ls -l"; fi
+cmd::exists () {
+    command -v "${1}" >/dev/null 2>&1
+    #printf "Does '%s' command exist: %s\n\n" "${1}" "${?}"
+}
+
+# Silently determine if a function is present in
+# the system; returns 0 if so Example usage:
+#       if function::exists lspath; then [etc. etc.]... ; fi
+function::exists () {
+    declare -F "${1}" > /dev/null
+}
+
+# lspath: A simple $PATH helper.
+#   (No args)   Outputs $PATH and count.
+#   -l          Nicer output and count.
+#   --clean     De-duplicates $PATH paths, no output.
+lspath () {
+    local -i numPaths
+    numPaths=$( awk -F: '{print NF}' <<< "${PATH}")
+    # Default case: no args given
+    if [ $# -lt 1 ]; then
+        printf -- "\n%s directories in \$PATH:\n\n" "${numPaths}"
+        printf -- "%s\n" "${PATH}"
+    else
+        # Faux get-opts: -l flag: List nicely
+        if [ "${1}" = "-l" ] ; then
+            printf -- "\n%s directories in \$PATH:\n\n" "${numPaths}"
+            # shellcheck disable=SC2001
+            sed $'s/:/\\\n/g' <<< "${PATH}" | nl -w "3" -s " "
+
+        # Faux get-opts: --clean long flag: Sort & De-duplicate $PATH
+        elif [ "${1}" = "--clean" ] ; then
+            local -a pathsArray=()
+
+            # Tokenize/ explode PATH into pathsArray
+            IFS=":" read -ra pathsArray <<< "${PATH}"
+
+            # Sort and de-deplicate pathsArray
+            # shellcheck disable=SC2207
+            IFS=$'\n' pathsArray=( $( sort -fu <<<"${pathsArray[*]}" ))
+            local cleanPaths=""
+
+            # Implode pathsArray back into single String var
+            cleanPaths=$( printf "%s:" "${pathsArray[@]}" )
+
+            # Strip the extra trailing delimiter & export away
+            PATH="${cleanPaths%?}"
+            export PATH
+            return 0
+
+        # Handle rando arg(s) given
+        else
+            printf -- "\n    Usage: 'lspath [-l] [--clean]'"
+        fi
+    fi
+    printf -- "\n"
+}
+
+# Silently remove any existing alias for lsvars:
+unalias lsvars >/dev/null 2>&1
+
+# lsVars: Outputs current session/ environment variables.
+#   (No args)   Normal output.
+#   -c          Colorized keys & values.
+lsvars () {
+    # Default case: no args given
+    if [ $# -lt 1 ]; then
+        ( set -o posix ; set ) | less -R
+    else
+        # Faux get-opts: -c flag: Colorized key/ values
+        if [ "${1}" = "-c" ] ; then
+            local -a envVars=()
+            while IFS="=" read -r thisKey thisValue; do
+                if [[ "${thisKey}" != "envVars" && "${thisKey}" != "thisKey" && "${thisKey}" != "thisValue" ]]; then
+                    local IFS=''
+                    # Better handling of various __git_* multi-line environment variables
+                    if [[ "${thisKey}" == "'" && "${thisValue}" == "" ]]; then
+                        envVars+=("'")
+                    else
+                        # shellcheck disable=SC2207
+                        envVars+=( $( printf -- "\033[96m%s\033[0m=\033[33m%s\033[0m" "${thisKey}" "${thisValue}" ) )
+                    fi
+            fi
+            done < <(set -o posix && set)
+            printf -- "%s\n" "${envVars[@]}" | less -R
+        fi
+    fi
+}
+
+# Set an alias to default to colorized
+alias lsvars="lsvars -c"
+
+# Silently remove any existing alias for lsjava
+unalias lsjava >/dev/null 2>&1
+
+# lsjava: Outputs all java versions present on system and
+# the current value of $JAVA_HOME.
+lsjava () {
+    echo
+    local javaPath="/usr/libexec/java_home"
+    if [ -x "${javaPath}" ]; then
+        "${javaPath}" -V
+        echo
+    fi
+    print::var "JAVA_HOME"
+    echo
+}
+
+# Outputs value of a single variable.
+# Be sure to pass in the variable *name* as a String;
+# indirectly references this (thus, "foo" not "$foo").
+print::var () {
+    if [ $# -eq 0 ]; then return 1; fi
+    local -ir minPadding=18
+    local var="${1}" varValue="${!1}" varLength="${#1}"
+    local padding="$(( minPadding - varLength - 5 ))"
+    if [ "${padding}" -lt "${minPadding}" ]; then padding="${minPadding}"; fi
+    printf -- "%-${padding}s    %s\"\n" "\$${var}" "\"${varValue}"
+}
+
+# Outputs value of an array variable.
+# Be sure to pass in the variable *name* as a String;
+# indirectly references this (thus, "foo[@]" not "$foo[@]"; also
+# handles arg of just "foo" in case you forget the "[@]" part).
+print::array () {
+    local arrayVarName="${1}"
+    if [[ ! "${arrayVarName}" =~ ^.*\[@\]$ ]]; then
+        arrayVarName="${arrayVarName}[@]"
+    fi
+    local -a array=( "${!arrayVarName}" )
+    local -ri arraySize="${#array[@]}"
+    local -r arrayName="${arrayVarName%%@\]*}${arraySize}]"
+    printf "\$%s:\n" "${arrayName}"
+    printf -- "%s\n" "${array[@]}" | nl -v 0
+}
+

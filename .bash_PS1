@@ -1,0 +1,35 @@
+# .bash_PS1
+#-----------------------------------------------------------
+# Custom $PS1 prompt in the following format:
+#
+#   <username> @ <hostname> [git repo state]
+#   $PWD
+#       $ <cursor>
+
+# Host-specific Customizations:
+    #declare customHostname="computerNameHere"
+    #declare colorHostname="\[\e[94m\]"
+
+# Git-Prompt Settings
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWCOLORHINTS=true
+
+# Some environments will prefer '\033' over '\e'
+declare colorGreenUnderlined="\[\e[4;32m\]"
+declare colorGreen="\[\e[32m\]"
+declare colorCyan="\[\e[96m\]"
+declare colorClear="\[\e[m\]"
+declare line1="" line2="" line3=""
+
+# Ensures defaults are used if no customizations specified
+customHostname="${customHostname:=$HOSTNAME}"
+colorHostname="${colorHostname:=\[\e[33m\]}"
+
+line1="${colorGreenUnderlined}\u${colorClear} @ ${colorHostname}${customHostname}${colorClear} $(__git_ps1 '(%s)')"
+line2="${colorCyan}\w${colorClear}"
+line3="${colorGreen}\$ ${colorClear}"
+PS1="${line1}\n${line2}\n${line3}"
+unset customHostname colorHostname
+unset line1 line2 line3 colorGreenUnderlined colorGreen colorCyan colorClear
+

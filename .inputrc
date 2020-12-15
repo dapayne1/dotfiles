@@ -1,0 +1,37 @@
+# input.rc
+# Readline Completion Settings
+################################
+
+"\e[A": history-search-backward
+    # Map Up arrow to allow search for completions to the current line from your history.
+    # e.g. type “git” and then hit UP to cycle through all the recent git commands.
+
+"\e[B": history-search-forward
+    # Map Down arrow to allow search for completions to the current line from your history.
+    # e.g. type “git” and then hit DOWN to cycle through all the recent git commands.
+
+set show-all-if-ambiguous on
+    # Words which have more than one possible completion cause the matches to be listed
+    # immediately instead of ringing the bell.
+
+set show-all-if-unmodified on
+    # Words which have more than one possible completion without any possible partial
+    # completion (the possible completions don't share a common prefix) cause the matches
+    # to be listed immediately instead of ringing the bell.
+
+set completion-ignore-case on
+    # Readline performs filename matching and completion in a case-insensitive fashion.
+
+# MAC OS X uses editline, not readline, and thus the following don't work so hot
+# as of 2019:
+
+#set completion-map-case on
+    # Underscores and hyphens are treated equally when completing
+
+#set completion-prefix-display-length 2
+    # Common prefixes (AKA, multiple completions that share the same prefix) longer than
+    # this value are replaced with an ellipsis when displaying possible completions.
+
+#set echo-control-characters on
+    # Readline no longer echoes a character corresponding to a signal generated
+    # from the keyboard.

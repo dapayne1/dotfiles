@@ -10,3 +10,12 @@
     #     true  | Doesn't proceed
     safecrlf = warn
 
+[diff]
+    tool = vimdiff
+
+[color]
+    ui = auto
+
+[user]
+	name = Dave Payne
+	email = dapayne1@gmail.com
