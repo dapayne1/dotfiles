@@ -10,10 +10,13 @@
     #declare customHostname="computerNameHere"
     #declare colorHostname="\[\e[94m\]"
 
-# Git-Prompt Settings
-# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWCOLORHINTS=true
+# Source git completion & prompt scripts, if present; needed for __git_ps1 usage below
+if [ -s "/usr/local/opt/git/etc/bash_completion.d/git-completion.bash" ]; then
+    . "/usr/local/opt/git/etc/bash_completion.d/git-completion.bash"
+fi
+if [ -s "/usr/local/opt/git/etc/bash_completion.d/git-prompt.sh" ]; then
+    . "/usr/local/opt/git/etc/bash_completion.d/git-prompt.sh"
+fi
 
 # Some environments will prefer '\033' over '\e'
 declare colorGreenUnderlined="\[\e[4;32m\]"
@@ -26,10 +29,22 @@ declare line1="" line2="" line3=""
 customHostname="${customHostname:=$HOSTNAME}"
 colorHostname="${colorHostname:=\[\e[33m\]}"
 
-line1="${colorGreenUnderlined}\u${colorClear} @ ${colorHostname}${customHostname}${colorClear} $(__git_ps1 '(%s)')"
+line1="${colorGreenUnderlined}\u${colorClear} @ ${colorHostname}${customHostname}${colorClear}"
+# Test for existance of __git_ps1 silently, only add onto prompt if found.
+__git_ps1 > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    # https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+    GIT_PS1_SHOWDIRTYSTATE=true
+    GIT_PS1_SHOWCOLORHINTS=true
+
+    # Note that the $() for the git branch/state is escaped; this is
+    # necessary for proper refreshing on normal directory changes
+    line1="${line1}\$(__git_ps1)"
+fi
 line2="${colorCyan}\w${colorClear}"
 line3="${colorGreen}\$ ${colorClear}"
-PS1="${line1}\n${line2}\n${line3}"
+
+export PS1="${line1}\n${line2}\n${line3}"
+
 unset customHostname colorHostname
 unset line1 line2 line3 colorGreenUnderlined colorGreen colorCyan colorClear
-
