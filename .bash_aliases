@@ -38,9 +38,14 @@ alias .........="cd ../../../../../../../.."
 #   (Replaced by lsvars(), see .bash_env_functions)
 #   alias lsvars="( set -o posix ; set ) | less -R"
 
-# ? Alias: Probably a bad idea, but works well on Darwin so far...
+# '?' aliases for 'halp' cmd; probably a bad idea,
+# but these work well on Darwin so far...
 #-----------------------------------------------------------
-if cmd::exists halp; then alias ?="halp -v"; fi
+if cmd::exists halp; then
+    alias ?="halp"
+    alias ??="halp -v"
+    alias ???="halp -vv"
+fi
 
 # Other Command Aliases
 #-----------------------------------------------------------
