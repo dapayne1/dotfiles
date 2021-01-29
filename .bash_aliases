@@ -7,7 +7,7 @@ alias info="info --vi-keys"
 #-----------------------------------------------------------
 declare ls_options="lah" ls_command="ls"
 if [ -z "${OS}" ]; then export OS="$(uname -s)"; fi && case "${OS}" in
-    Linux*)     ;;
+    Linux*)     ls_options="AlhFG --color";;
     Darwin*)    ls_options="lhFGT";;
     CYGWIN*)    ;;
     MINGW*)     ;;
